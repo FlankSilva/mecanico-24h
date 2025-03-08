@@ -1,4 +1,4 @@
-import Container from '@/components/container';
+import Container from '@/components/elements/container';
 import { CitiesresponseProps, Form } from '@/components/modules/form';
 
 type StatesResponse = {

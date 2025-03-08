@@ -1,5 +1,5 @@
-import Container from '@/components/container';
-import SearchLocation from '@/components/searchLocation';
+import Container from '@/components/elements/container';
+import SearchLocation from '@/components/elements/searchLocation';
 
 export default function Home() {
   return (
