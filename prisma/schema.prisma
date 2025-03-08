@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String        @id @default(uuid())
+  name             String
+  phone            String
+  whatsapp         String
+  address          String
+  email            String        @unique
+  password_hash    String
+  cityId           String
+  commissionaireId String?
+  photoUrl         String
+  isAdmin          Boolean
+  paymentStatus    PaymentStatus @default(pending)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  commissionaire Commissionaire? @relation("CommissionaireUsers", fields: [commissionaireId], references: [id])
+  services       Service[]       @relation("UserServices")
+
+  @@map("user")
+}
+
+model Service {
+  id   String @id @default(uuid())
+  name String @unique
+
+  users User[] @relation("UserServices")
+
+  @@map("service")
+}
+
+model Commissionaire {
+  id   String @id @default(uuid())
+  name String
+
+  users   User[]    @relation("CommissionaireUsers")
+  Payment Payment[]
+
+  @@map("commissionaire")
+}
+
+model Payment {
+  id               String   @id @default(uuid())
+  commissionaireId String
+  amount           Float
+  paymentDate      DateTime @default(now())
+
+  commissionaire Commissionaire @relation(fields: [commissionaireId], references: [id])
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+}

@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: mechanic-postgres
+    image: postgres:latest
+    ports:
+      - '5432:5432' # Expondo a porta 5432 do container
+    environment:
+      POSTGRES_USER: postgres # Usuário do banco de dados
+      POSTGRES_PASSWORD: docker # Senha para o usuário
+      POSTGRES_DB: nest-clean # Nome do banco de dados a ser criado
+    volumes:
+      - ./data/pg:/var/lib/postgresql/data # Volume persistente para dados
+    restart: always
