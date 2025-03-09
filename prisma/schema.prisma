@@ -17,25 +17,16 @@ model User {
   password_hash    String
   cityId           String
   commissionaireId String?
-  photoUrl         String
-  isAdmin          Boolean
+  photoUrl         String?
+  isAdmin          Boolean       @default(false)
   paymentStatus    PaymentStatus @default(pending)
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+  services         String[]
 
   commissionaire Commissionaire? @relation("CommissionaireUsers", fields: [commissionaireId], references: [id])
-  services       Service[]       @relation("UserServices")
 
   @@map("user")
-}
-
-model Service {
-  id   String @id @default(uuid())
-  name String @unique
-
-  users User[] @relation("UserServices")
-
-  @@map("service")
 }
 
 model Commissionaire {

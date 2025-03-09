@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import Select, { components } from 'react-select';
 import { FixedSizeList as List } from 'react-window';
 
-type Options = {
+export type Options = {
   label: string;
   value: string;
 };
@@ -11,6 +11,7 @@ type SelectDropdownProps = {
   options: Options[];
   label?: string;
   placeholder?: string;
+  setSelectedOption: (option: Options) => void;
 };
 
 const MenuList = (props: any) => {
@@ -35,16 +36,14 @@ export function SelectDropdown({
   options,
   label,
   placeholder,
+  setSelectedOption,
 }: SelectDropdownProps) {
-  const [searchInput, setSearchInput] = useState('');
-  const [filteredOptions, setFilteredOptions] = useState(options);
+  const [filteredOptions, setFilteredOptions] = useState<Options[]>(options);
 
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   const handleInputChange = useCallback(
     (inputValue: string) => {
-      setSearchInput(inputValue);
-
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
       }
@@ -59,6 +58,10 @@ export function SelectDropdown({
     [options],
   );
 
+  const handleChange = (option: Options | null) => {
+    setSelectedOption(option as Options);
+  };
+
   return (
     <div>
       <label htmlFor="" className="text-[14px] text-blue-500 font-bold">
@@ -70,6 +73,7 @@ export function SelectDropdown({
         placeholder={placeholder}
         onInputChange={handleInputChange}
         components={{ MenuList }}
+        onChange={handleChange}
       />
     </div>
   );

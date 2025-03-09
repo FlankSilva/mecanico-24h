@@ -7,7 +7,7 @@ import { Button } from '@/components/elements/form/button';
 import { CheckboxList } from '@/components/elements/form/checkbox';
 import { Input } from '@/components/elements/form/input';
 import { ImageUpload } from '@/components/elements/form/inputFile';
-import { SelectDropdown } from '@/components/elements/form/select';
+import { Options, SelectDropdown } from '@/components/elements/form/select';
 
 export type CitiesresponseProps = {
   label: string;
@@ -29,17 +29,30 @@ type FormDataProps = {
 
 export function Form({ statesOptions }: FormProps) {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [selectedCity, setSelectedCity] = useState<Options>({} as Options);
   const [otherValue, setOtherValue] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = useState<Options | null>(null);
 
   function handleCreateNewMechanicUser(data: FormDataProps) {
     const newData = {
       ...data,
+      whatsapp: data.phone,
+      password_hash: data.password,
       services: selectedOptions,
+      cityId: selectedCity.value,
+      photoUrl: 'selectedFile',
     };
 
-    console.log(newData);
+    try {
+      const response: any = fetch('/api/users', {
+        method: 'POST',
+        body: JSON.stringify(newData),
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   const {
@@ -164,6 +177,7 @@ export function Form({ statesOptions }: FormProps) {
           label="Cidade"
           placeholder="Selecione uma cidade"
           options={statesOptions}
+          setSelectedOption={setSelectedCity}
         />
       </div>
 

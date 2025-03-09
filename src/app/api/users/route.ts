@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { hash } from 'bcryptjs';
 import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
@@ -20,7 +19,6 @@ export async function GET(): Promise<Response> {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
     const {
       name,
       phone,
@@ -33,6 +31,7 @@ export async function POST(req: Request) {
       photoUrl,
       isAdmin,
       paymentStatus,
+      services,
     } = body;
 
     const existingUser = await prisma.user.findUnique({
@@ -46,20 +45,19 @@ export async function POST(req: Request) {
       );
     }
 
+    let commissionaireExists = null;
     if (commissionaireId) {
-      const existingCommissionaire = await prisma.commissionaire.findUnique({
+      commissionaireExists = await prisma.commissionaire.findUnique({
         where: { id: commissionaireId },
       });
 
-      if (!existingCommissionaire) {
+      if (!commissionaireExists) {
         return NextResponse.json(
           { error: 'Commissionaire não encontrado' },
           { status: 400 },
         );
       }
     }
-
-    const newHashPassword = await hash(password_hash, 8);
 
     const newUser = await prisma.user.create({
       data: {
@@ -68,16 +66,17 @@ export async function POST(req: Request) {
         whatsapp,
         address,
         email,
-        password_hash: newHashPassword,
+        password_hash,
         cityId,
-        commissionaireId: commissionaireId || null,
-        photoUrl,
+        commissionaireId: commissionaireExists ? commissionaireId : null,
+        photoUrl: photoUrl || null,
         isAdmin,
         paymentStatus,
+        services,
       },
     });
 
-    return NextResponse.json({ body, status: 201 });
+    return NextResponse.json(newUser, { status: 201 });
   } catch (error) {
     console.error('Erro ao criar usuário:', error);
     return NextResponse.json(
