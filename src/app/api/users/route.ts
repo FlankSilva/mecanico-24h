@@ -1,5 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import { PaymentStatus, PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
+
+import { writeFile } from 'fs/promises';
+import path from 'path';
 
 const prisma = new PrismaClient();
 
@@ -18,26 +21,34 @@ export async function GET(): Promise<Response> {
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const {
-      name,
-      phone,
-      whatsapp,
-      address,
-      email,
-      password_hash,
-      cityId,
-      commissionaireId,
-      photoUrl,
-      isAdmin,
-      paymentStatus,
-      services,
-    } = body;
+    const formData = await req.formData();
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
+    const name = formData.get('name') as string;
+    const phone = formData.get('phone') as string;
+    const whatsapp = formData.get('whatsapp') as string;
+    const address = formData.get('address') as string;
+    const email = formData.get('email') as string;
+    const password_hash = formData.get('password_hash') as string;
+    const cityId = formData.get('cityId') as string;
+    const commissionaireId = formData.get('commissionaireId') as string | null;
+    const isAdmin = formData.get('isAdmin') === 'true';
+    const paymentStatusString = formData.get('paymentStatus') as string;
+    const paymentStatus = paymentStatusString as PaymentStatus;
+    const servicesRaw = formData.get('services') as string;
+    const services = servicesRaw ? servicesRaw.split(',') : [];
 
+    // Processar o upload da imagem
+    let photoUrl = null;
+    const file = formData.get('photoUrl') as File | null;
+    if (file) {
+      const filePath = path.join(process.cwd(), 'public/uploads', file.name);
+      const buffer = await file.arrayBuffer();
+      await writeFile(filePath, Buffer.from(buffer));
+      photoUrl = `/uploads/${file.name}`;
+    }
+
+    // Verificar se o usuário já existe
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json(
         { error: 'Email já cadastrado' },
@@ -45,12 +56,12 @@ export async function POST(req: Request) {
       );
     }
 
+    // Verificar se o commissionaireId é válido
     let commissionaireExists = null;
     if (commissionaireId) {
       commissionaireExists = await prisma.commissionaire.findUnique({
         where: { id: commissionaireId },
       });
-
       if (!commissionaireExists) {
         return NextResponse.json(
           { error: 'Commissionaire não encontrado' },
@@ -68,10 +79,12 @@ export async function POST(req: Request) {
         email,
         password_hash,
         cityId,
-        commissionaireId: commissionaireExists ? commissionaireId : null,
-        photoUrl: photoUrl || null,
+        commissionaire: commissionaireExists
+          ? { connect: { id: commissionaireExists.id } }
+          : undefined,
+        photoUrl,
         isAdmin,
-        paymentStatus,
+        paymentStatus: paymentStatus || 'pending',
         services,
       },
     });

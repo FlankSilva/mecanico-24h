@@ -36,19 +36,28 @@ export function Form({ statesOptions }: FormProps) {
   const [selectedOption, setSelectedOption] = useState<Options | null>(null);
 
   function handleCreateNewMechanicUser(data: FormDataProps) {
-    const newData = {
-      ...data,
-      whatsapp: data.phone,
-      password_hash: data.password,
-      services: selectedOptions,
-      cityId: selectedCity.value,
-      photoUrl: 'selectedFile',
-    };
+    const formData = new FormData();
+
+    formData.append('name', data.name);
+    formData.append('phone', data.phone);
+    formData.append('whatsapp', data.phone);
+    formData.append('address', data.address);
+    formData.append('email', data.email);
+    formData.append('password_hash', data.password);
+    formData.append('cityId', selectedCity.value);
+
+    selectedOptions.forEach((service: string) => {
+      formData.append('services', service);
+    });
+
+    if (selectedFile) {
+      formData.append('photoUrl', selectedFile);
+    }
 
     try {
       const response: any = fetch('/api/users', {
         method: 'POST',
-        body: JSON.stringify(newData),
+        body: formData,
       });
     } catch (error) {
       console.log(error);
