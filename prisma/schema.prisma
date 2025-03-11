@@ -8,35 +8,54 @@ datasource db {
 }
 
 model User {
-  id               String        @id @default(uuid())
-  name             String
-  phone            String
-  whatsapp         String
-  address          String
-  email            String        @unique
-  password_hash    String
-  cityId           String
-  commissionaireId String?
-  photoUrl         String?
-  isAdmin          Boolean       @default(false)
-  paymentStatus    PaymentStatus @default(pending)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  services         String[]
+  id            String   @id @default(uuid())
+  name          String
+  phone         String
+  whatsapp      String
+  address       String
+  email         String   @unique
+  password_hash String
+  cityId        String
+  isAdmin       Boolean  @default(false)
+  role          UserRole @default(MECHANIC)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  commissionaire Commissionaire? @relation("CommissionaireUsers", fields: [commissionaireId], references: [id])
+  mechanic       Mechanic?
+  commissionaire Commissionaire?
 
   @@map("user")
 }
 
-model Commissionaire {
-  id   String @id @default(uuid())
-  name String
+model Mechanic {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  specialties String[]
+  experience  Int
+  cityId      String
+  photoUrl    String?
 
-  users   User[]    @relation("CommissionaireUsers")
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("mechanic")
+}
+
+model Commissionaire {
+  id         String @id @default(uuid())
+  userId     String @unique
+  referrals  Int    @default(0)
+  commission Float  @default(0)
+
+  user    User      @relation(fields: [userId], references: [id])
   Payment Payment[]
 
   @@map("commissionaire")
+}
+
+enum UserRole {
+  ADMIN
+  MECHANIC
+  COMMISSIONAIRE
 }
 
 model Payment {

@@ -45,6 +45,7 @@ export function Form({ statesOptions }: FormProps) {
     formData.append('email', data.email);
     formData.append('password_hash', data.password);
     formData.append('cityId', selectedCity.value);
+    formData.append('role', 'MECHANIC');
 
     selectedOptions.forEach((service: string) => {
       formData.append('services', service);
@@ -55,12 +56,20 @@ export function Form({ statesOptions }: FormProps) {
     }
 
     try {
-      const response: any = fetch('/api/users', {
+      const response = fetch('/api/users', {
         method: 'POST',
         body: formData,
       });
+
+      response.then(res => {
+        if (res.ok) {
+          console.log('Usuário criado com sucesso!');
+        } else {
+          console.log('Falha ao criar usuário.');
+        }
+      });
     } catch (error) {
-      console.log(error);
+      console.log('Erro ao enviar os dados:', error);
     }
   }
 

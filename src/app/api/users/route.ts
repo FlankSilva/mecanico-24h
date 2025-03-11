@@ -1,4 +1,4 @@
-import { PaymentStatus, PrismaClient } from '@prisma/client';
+import { PaymentStatus, PrismaClient, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 import { writeFile } from 'fs/promises';
@@ -8,7 +8,12 @@ const prisma = new PrismaClient();
 
 export async function GET(): Promise<Response> {
   try {
-    const users = await prisma.user.findMany();
+    const users = await prisma.user.findMany({
+      include: {
+        mechanic: true,
+        commissionaire: true,
+      },
+    });
 
     return new Response(JSON.stringify(users), { status: 200 });
   } catch (error) {
@@ -30,24 +35,22 @@ export async function POST(req: Request) {
     const email = formData.get('email') as string;
     const password_hash = formData.get('password_hash') as string;
     const cityId = formData.get('cityId') as string;
-    const commissionaireId = formData.get('commissionaireId') as string | null;
+    const role = formData.get('role') as UserRole;
     const isAdmin = formData.get('isAdmin') === 'true';
     const paymentStatusString = formData.get('paymentStatus') as string;
-    const paymentStatus = paymentStatusString as PaymentStatus;
-    const servicesRaw = formData.get('services') as string;
-    const services = servicesRaw ? servicesRaw.split(',') : [];
+    const paymentStatus = (paymentStatusString as PaymentStatus) || 'pending';
+    const servicesRaw = formData.get('services') as string; // Capturando o campo services
+    const services = servicesRaw
+      ? servicesRaw.split(',').map(service => service.trim())
+      : []; // Transformando em array
 
-    // Processar o upload da imagem
-    let photoUrl = null;
-    const file = formData.get('photoUrl') as File | null;
-    if (file) {
-      const filePath = path.join(process.cwd(), 'public/uploads', file.name);
-      const buffer = await file.arrayBuffer();
-      await writeFile(filePath, Buffer.from(buffer));
-      photoUrl = `/uploads/${file.name}`;
+    if (!role || !Object.values(UserRole).includes(role)) {
+      return NextResponse.json(
+        { error: 'Role inválido. Use MECHANIC, COMMISSIONAIRE ou ADMIN' },
+        { status: 400 },
+      );
     }
 
-    // Verificar se o usuário já existe
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json(
@@ -56,9 +59,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // Verificar se o commissionaireId é válido
+    let commissionaireId = formData.get('commissionaireId') as string | null;
     let commissionaireExists = null;
-    if (commissionaireId) {
+    if (role === 'COMMISSIONAIRE' && commissionaireId) {
       commissionaireExists = await prisma.commissionaire.findUnique({
         where: { id: commissionaireId },
       });
@@ -67,6 +70,17 @@ export async function POST(req: Request) {
           { error: 'Commissionaire não encontrado' },
           { status: 400 },
         );
+      }
+    }
+
+    let photoUrl = null;
+    if (role === 'MECHANIC') {
+      const file = formData.get('photoUrl') as File | null;
+      if (file) {
+        const filePath = path.join(process.cwd(), 'public/uploads', file.name);
+        const buffer = await file.arrayBuffer();
+        await writeFile(filePath, Buffer.from(buffer));
+        photoUrl = `/uploads/${file.name}`;
       }
     }
 
@@ -79,15 +93,30 @@ export async function POST(req: Request) {
         email,
         password_hash,
         cityId,
-        commissionaire: commissionaireExists
-          ? { connect: { id: commissionaireExists.id } }
-          : undefined,
-        photoUrl,
-        isAdmin,
-        paymentStatus: paymentStatus || 'pending',
-        services,
+        role,
       },
     });
+
+    if (role === 'MECHANIC') {
+      await prisma.mechanic.create({
+        data: {
+          userId: newUser.id,
+          photoUrl,
+          specialties: formData.get('specialties')
+            ? (formData.get('specialties') as string).split(',')
+            : [],
+          experience: Number(formData.get('experience')) || 0,
+          cityId,
+          services, // Salvando os serviços no campo 'services' da tabela mechanic
+        },
+      });
+    } else if (role === 'COMMISSIONAIRE') {
+      await prisma.commissionaire.create({
+        data: {
+          userId: newUser.id,
+        },
+      });
+    }
 
     return NextResponse.json(newUser, { status: 201 });
   } catch (error) {
