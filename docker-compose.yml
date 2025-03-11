@@ -5,11 +5,11 @@ services:
     container_name: mechanic-postgres
     image: postgres:latest
     ports:
-      - '5432:5432' # Expondo a porta 5432 do container
+      - '5432:5432'
     environment:
-      POSTGRES_USER: postgres # Usuário do banco de dados
-      POSTGRES_PASSWORD: docker # Senha para o usuário
-      POSTGRES_DB: nest-clean # Nome do banco de dados a ser criado
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: nest-clean
     volumes:
-      - ./data/pg:/var/lib/postgresql/data # Volume persistente para dados
+      - ./data/pg:/var/lib/postgresql/data
     restart: always

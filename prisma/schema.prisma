@@ -28,14 +28,16 @@ model User {
 }
 
 model Mechanic {
-  id          String   @id @default(uuid())
-  userId      String   @unique
-  specialties String[]
-  experience  Int
-  cityId      String
-  photoUrl    String?
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  specialties     String[]
+  experience      Int
+  cityId          String
+  photoUrl        String?
+  commissionaireId String?
 
-  user User @relation(fields: [userId], references: [id])
+  user            User      @relation(fields: [userId], references: [id])
+  commissionaire  Commissionaire? @relation(fields: [commissionaireId], references: [id])
 
   @@map("mechanic")
 }
@@ -43,11 +45,13 @@ model Mechanic {
 model Commissionaire {
   id         String @id @default(uuid())
   userId     String @unique
+  uniqueCode String @unique
   referrals  Int    @default(0)
   commission Float  @default(0)
 
-  user    User      @relation(fields: [userId], references: [id])
-  Payment Payment[]
+  user       User       @relation(fields: [userId], references: [id])
+  mechanics  Mechanic[]
+  payments   Payment[]
 
   @@map("commissionaire")
 }
@@ -63,6 +67,7 @@ model Payment {
   commissionaireId String
   amount           Float
   paymentDate      DateTime @default(now())
+  status           PaymentStatus @default(pending)
 
   commissionaire Commissionaire @relation(fields: [commissionaireId], references: [id])
 }
