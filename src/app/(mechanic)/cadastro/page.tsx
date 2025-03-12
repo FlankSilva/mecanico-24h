@@ -10,7 +10,7 @@ type StatesResponse = {
 };
 
 export default async function Cadastro() {
-  const response = await fetch('http://localhost:3000/estados-cidades.json'); // Em produção, use process.env.NEXT_PUBLIC_SITE_URL
+  const response = await fetch('http://localhost:3000/estados-cidades.json');
   const states: StatesResponse = await response.json();
 
   const citiesStates: CitiesresponseProps[] = states.estados.flatMap(state =>

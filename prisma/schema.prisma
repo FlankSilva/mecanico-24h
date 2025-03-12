@@ -11,13 +11,12 @@ model User {
   id            String   @id @default(uuid())
   name          String
   phone         String
-  whatsapp      String
   address       String
   email         String   @unique
   password_hash String
   cityId        String
   isAdmin       Boolean  @default(false)
-  role          UserRole @default(MECHANIC)
+  role          UserRole?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
