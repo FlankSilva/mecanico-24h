@@ -8,17 +8,16 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   name          String
   phone         String
   address       String
-  email         String   @unique
+  email         String    @unique
   password_hash String
-  cityId        String
-  isAdmin       Boolean  @default(false)
+  isAdmin       Boolean   @default(false)
   role          UserRole?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   mechanic       Mechanic?
   commissionaire Commissionaire?
@@ -27,16 +26,16 @@ model User {
 }
 
 model Mechanic {
-  id              String   @id @default(uuid())
-  userId          String   @unique
-  specialties     String[]
-  experience      Int
-  cityId          String
-  photoUrl        String?
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  specialties      String[]
+  experience       Int
+  cityId           String
+  photoUrl         String?
   commissionaireId String?
 
-  user            User      @relation(fields: [userId], references: [id])
-  commissionaire  Commissionaire? @relation(fields: [commissionaireId], references: [id])
+  user           User            @relation(fields: [userId], references: [id])
+  commissionaire Commissionaire? @relation(fields: [commissionaireId], references: [id])
 
   @@map("mechanic")
 }
@@ -48,9 +47,9 @@ model Commissionaire {
   referrals  Int    @default(0)
   commission Float  @default(0)
 
-  user       User       @relation(fields: [userId], references: [id])
-  mechanics  Mechanic[]
-  payments   Payment[]
+  user      User       @relation(fields: [userId], references: [id])
+  mechanics Mechanic[]
+  payments  Payment[]
 
   @@map("commissionaire")
 }
@@ -62,10 +61,10 @@ enum UserRole {
 }
 
 model Payment {
-  id               String   @id @default(uuid())
+  id               String        @id @default(uuid())
   commissionaireId String
   amount           Float
-  paymentDate      DateTime @default(now())
+  paymentDate      DateTime      @default(now())
   status           PaymentStatus @default(pending)
 
   commissionaire Commissionaire @relation(fields: [commissionaireId], references: [id])

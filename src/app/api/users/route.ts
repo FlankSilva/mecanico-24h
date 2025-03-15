@@ -25,7 +25,6 @@ export async function POST(req: Request) {
         address,
         email,
         password_hash: newHashedPassword,
-        cityId,
       },
     });
 
