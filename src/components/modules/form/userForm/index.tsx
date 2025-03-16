@@ -1,16 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/elements/form/button';
 import { Input } from '@/components/elements/form/input';
-import { Options } from '@/components/elements/form/select';
-import { SelectProps } from '@/types/selectProps';
-
-type FormProps = {
-  statesOptions: SelectProps[];
-};
+import { storageAuthTokenSave } from '@/storage/authToken';
+import { useRouter } from 'next/navigation';
 
 type FormDataProps = {
   name: string;
@@ -21,13 +16,12 @@ type FormDataProps = {
   confirmPassword: string;
 };
 
-export function UserForm({ statesOptions }: FormProps) {
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-  const [selectedCity, setSelectedCity] = useState<Options>({} as Options);
-  const [otherValue, setOtherValue] = useState('');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [selectedOption, setSelectedOption] = useState<Options | null>(null);
+type ResponseCreateUser = {
+  token: string;
+};
+
+export function UserForm() {
+  const router = useRouter();
 
   async function handleCreateNewMechanicUser(data: FormDataProps) {
     try {
@@ -51,7 +45,11 @@ export function UserForm({ statesOptions }: FormProps) {
         return;
       }
 
-      const result = await response.json();
+      const result: ResponseCreateUser = await response.json();
+
+      storageAuthTokenSave(result.token);
+
+      router.push('/cadastro/perfil');
     } catch (error) {
       console.error('Erro ao enviar os dados:', error);
     }
@@ -158,30 +156,6 @@ export function UserForm({ statesOptions }: FormProps) {
           )}
         />
       </div>
-
-      {/* <CheckboxList
-        label="Serviços"
-        otherValue={otherValue}
-        selectedOptions={selectedOptions}
-        setOtherValue={setOtherValue}
-        setSelectedOptions={setSelectedOptions}
-      />
-
-      <ImageUpload
-        previewUrl={previewUrl}
-        selectedFile={selectedFile}
-        setSelectedFile={setSelectedFile}
-        setPreviewUrl={setPreviewUrl}
-      />
-
-      <div className="w-full mt-4">
-        <SelectDropdown
-          label="Cidade"
-          placeholder="Selecione uma cidade"
-          options={statesOptions}
-          setSelectedOption={setSelectedCity}
-        />
-      </div> */}
 
       <div className="w-full mt-5">
         <Button type="submit">
