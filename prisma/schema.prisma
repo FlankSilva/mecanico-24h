@@ -36,6 +36,8 @@ model Mechanic {
   user           User            @relation(fields: [userId], references: [id])
   commissionaire Commissionaire? @relation(fields: [commissionaireId], references: [id])
 
+  referralsMade Referral[]
+
   @@map("mechanic")
 }
 
@@ -49,8 +51,22 @@ model Commissionaire {
   user      User       @relation(fields: [userId], references: [id])
   mechanics Mechanic[]
   payments  Payment[]
+  Referral  Referral[]
 
   @@map("commissionaire")
+}
+
+model Referral {
+  id               String   @id @default(uuid())
+  commissionaireId String
+  mechanicId       String
+  commission       Float
+  referralDate     DateTime @default(now())
+
+  commissionaire Commissionaire @relation(fields: [commissionaireId], references: [id])
+  mechanic       Mechanic       @relation(fields: [mechanicId], references: [id])
+
+  @@map("referral")
 }
 
 enum UserRole {

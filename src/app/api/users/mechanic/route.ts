@@ -1,37 +1,52 @@
 import { PrismaClient } from '@prisma/client';
 import { writeFile } from 'fs/promises';
+import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 import path from 'path';
 
 const prisma = new PrismaClient();
+const SECRET_KEY = process.env.JWT_SECRET || 'secret';
 
 export async function POST(req: Request) {
   try {
-    const formData = await req.formData();
+    const token = req.headers.get('Authorization')?.split(' ')[1];
 
-    const userId = formData.get('userId') as string;
-    const specialtiesRaw = formData.get('specialties') as string;
-    const specialties = specialtiesRaw
-      ? specialtiesRaw.split(',').map(service => service.trim())
-      : [];
-    const experience = formData.get('experience')
-      ? parseInt(formData.get('experience') as string, 10)
-      : 0;
-    const cityId = formData.get('cityId') as string;
-    const file = formData.get('photoUrl') as File | null;
-
-    if (!userId || !specialties || !experience || !cityId) {
+    if (!token) {
       return NextResponse.json(
-        { error: 'Campos obrigatórios ausentes' },
+        { error: 'Token de autenticação não fornecido' },
+        { status: 401 },
+      );
+    }
+
+    const decoded = jwt.verify(token, SECRET_KEY) as { id: string };
+
+    const userId = decoded.id;
+
+    const existingMechanic = await prisma.mechanic.findUnique({
+      where: { userId },
+    });
+
+    if (existingMechanic) {
+      return NextResponse.json(
+        { error: 'Mecânico já registrado' },
         { status: 400 },
       );
     }
 
-    const userExists = await prisma.user.findUnique({ where: { id: userId } });
-    if (!userExists) {
+    const formData = await req.formData();
+
+    const specialtiesRaw = formData.get('specialties') as string;
+    const specialties = specialtiesRaw
+      ? specialtiesRaw.split(',').map(service => service.trim())
+      : [];
+
+    const cityId = formData.get('cityId') as string;
+    const file = formData.get('photoUrl') as File | null;
+
+    if (!specialties || !cityId) {
       return NextResponse.json(
-        { error: 'Usuário não encontrado' },
-        { status: 404 },
+        { error: 'Campos obrigatórios ausentes' },
+        { status: 400 },
       );
     }
 
@@ -43,33 +58,19 @@ export async function POST(req: Request) {
       photoUrl = `/uploads/${file.name}`;
     }
 
-    const existingMechanic = await prisma.mechanic.findUnique({
-      where: { userId: userId },
+    const newMechanic = await prisma.mechanic.create({
+      data: {
+        userId,
+        specialties,
+        cityId,
+        photoUrl,
+      },
     });
 
-    if (existingMechanic) {
-      const updatedMechanic = await prisma.mechanic.update({
-        where: { userId: userId },
-        data: {
-          specialties,
-          experience,
-          cityId,
-          photoUrl,
-        },
-      });
-      return NextResponse.json(updatedMechanic, { status: 200 });
-    } else {
-      const newMechanic = await prisma.mechanic.create({
-        data: {
-          userId,
-          specialties,
-          experience,
-          cityId,
-          photoUrl,
-        },
-      });
-      return NextResponse.json(newMechanic, { status: 201 });
-    }
+    return NextResponse.json(
+      { message: 'Mecânico cadastrado com sucesso', mechanic: newMechanic },
+      { status: 201 },
+    );
   } catch (error) {
     console.error('Erro ao gravar dados do mecânico:', error);
     return NextResponse.json(

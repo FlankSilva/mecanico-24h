@@ -45,7 +45,6 @@ export function MechanicForm({ statesOptions }: FormProps) {
 
     const formData = new FormData();
 
-    formData.append('userId', 'ID_DO_USUARIO');
     formData.append('specialties', selectedOptions.join(','));
     formData.append('cityId', selectedCity?.value || '');
     if (selectedFile) {
@@ -53,25 +52,23 @@ export function MechanicForm({ statesOptions }: FormProps) {
     }
     const token = storageAuthTokenGet();
 
-    console.log(token);
-
-    return;
-
     try {
       const response = await fetch('/api/users/mechanic', {
         method: 'POST',
         body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao cadastrar mecânico');
-      }
+      // if (!response.ok) {
+      //   throw new Error('Erro ao cadastrar mecânico');
+      // }
 
       const result = await response.json();
       console.log('Cadastro realizado com sucesso:', result);
 
-      // Redirecionamento ou mensagem de sucesso
-      router.push('/dashboard');
+      // router.push('/dashboard');
     } catch (error) {
       console.error('Erro ao enviar os dados:', error);
     }

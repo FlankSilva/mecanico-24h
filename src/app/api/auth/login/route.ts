@@ -31,7 +31,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Senha incorreta' }, { status: 401 });
     }
 
-    // Gerar token JWT
     const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, {
       expiresIn: '1h',
     });
