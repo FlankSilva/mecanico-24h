@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, UserRole } from '@prisma/client';
 import { writeFile } from 'fs/promises';
 import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
@@ -19,7 +19,6 @@ export async function POST(req: Request) {
     }
 
     const decoded = jwt.verify(token, SECRET_KEY) as { id: string };
-
     const userId = decoded.id;
 
     const existingMechanic = await prisma.mechanic.findUnique({
@@ -34,7 +33,6 @@ export async function POST(req: Request) {
     }
 
     const formData = await req.formData();
-
     const specialtiesRaw = formData.get('specialties') as string;
     const specialties = specialtiesRaw
       ? specialtiesRaw.split(',').map(service => service.trim())
@@ -58,17 +56,27 @@ export async function POST(req: Request) {
       photoUrl = `/uploads/${file.name}`;
     }
 
-    const newMechanic = await prisma.mechanic.create({
-      data: {
-        userId,
-        specialties,
-        cityId,
-        photoUrl,
-      },
-    });
+    const [newMechanic, updatedUser] = await prisma.$transaction([
+      prisma.mechanic.create({
+        data: {
+          userId,
+          specialties,
+          cityId,
+          photoUrl,
+        },
+      }),
+      prisma.user.update({
+        where: { id: userId },
+        data: { role: UserRole.MECHANIC },
+      }),
+    ]);
 
     return NextResponse.json(
-      { message: 'Mecânico cadastrado com sucesso', mechanic: newMechanic },
+      {
+        message: 'Mecânico cadastrado com sucesso',
+        mechanic: newMechanic,
+        user: updatedUser,
+      },
       { status: 201 },
     );
   } catch (error) {

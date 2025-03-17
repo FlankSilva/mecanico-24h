@@ -33,7 +33,6 @@ export async function POST(req: Request) {
     }
 
     const uniqueCode = uuidv4();
-
     const newCommissionaire = await prisma.commissionaire.create({
       data: {
         userId,
@@ -41,6 +40,11 @@ export async function POST(req: Request) {
         referrals: 0,
         commission: 0,
       },
+    });
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { role: 'COMMISSIONAIRE' },
     });
 
     return NextResponse.json(

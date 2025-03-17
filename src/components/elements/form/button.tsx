@@ -15,7 +15,8 @@ export function Button({
   return (
     <button
       className={`
-        py-1 px-4 rounded 
+        py-1 px-4 
+        rounded-[7px]
         hover:bg-[#4338ca]/70 
         bg-[#4338ca]
         transition-all 
