@@ -1,5 +1,4 @@
 import Container from '@/components/elements/container';
-import SearchLocation from '@/components/elements/searchLocation';
 
 export default function Home() {
   return (
@@ -14,7 +13,7 @@ export default function Home() {
           Assistência automotiva de emergência quando você mais precisa.
         </h2>
 
-        <SearchLocation />
+        {/* <SearchLocation /> */}
       </Container>
     </div>
   );

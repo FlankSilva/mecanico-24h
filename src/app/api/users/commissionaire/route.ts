@@ -20,7 +20,6 @@ export async function POST(req: Request) {
     const decoded = jwt.verify(token, SECRET_KEY) as { id: string };
     const userId = decoded.id;
 
-    // Verifica se o usuário já é um comissionário
     const existingCommissionaire = await prisma.commissionaire.findUnique({
       where: { userId },
     });

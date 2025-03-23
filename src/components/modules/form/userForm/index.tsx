@@ -4,6 +4,8 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/elements/form/button';
 import { Input } from '@/components/elements/form/input';
+import { TextErrorGeneral } from '@/components/elements/form/textErrorGeneral';
+import { useResponseCreateUser } from '@/context/responseCreateUser';
 import { storageAuthTokenSave } from '@/storage/authToken';
 import { useRouter } from 'next/navigation';
 
@@ -23,7 +25,11 @@ type ResponseCreateUser = {
 export function UserForm() {
   const router = useRouter();
 
+  const { setMessageResponse } = useResponseCreateUser();
+
   async function handleCreateNewMechanicUser(data: FormDataProps) {
+    setMessageResponse('');
+
     try {
       const response = await fetch('/api/users', {
         method: 'POST',
@@ -41,6 +47,11 @@ export function UserForm() {
 
       if (!response.ok) {
         const errorData = await response.json();
+
+        if (response.status === 409) {
+          setMessageResponse('Usuário ja cadastrado');
+        }
+
         console.error('Erro ao enviar os dados:', errorData);
         return;
       }
@@ -157,6 +168,7 @@ export function UserForm() {
         />
       </div>
 
+      <TextErrorGeneral>E-mail ja está cadastrado</TextErrorGeneral>
       <div className="w-full mt-5">
         <Button type="submit">
           <span className="text-white">Salvar</span>

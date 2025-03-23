@@ -18,6 +18,15 @@ export async function POST(req: Request) {
       );
     }
 
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'Usuário ja cadastrado' },
+        { status: 409 },
+      );
+    }
+
     const newHashedPassword = await hash(password_hash, 10);
 
     const newUser = await prisma.user.create({

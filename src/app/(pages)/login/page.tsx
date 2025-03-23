@@ -3,6 +3,7 @@
 import { Button } from '@/components/elements/form/button';
 import { Input } from '@/components/elements/form/input';
 import { storageAuthTokenSave } from '@/storage/authToken';
+import Link from 'next/link';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -64,9 +65,8 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
-      <div className="rounded-2xl border border-zinc-200 p-5 pb-10">
+      <div className="rounded-2xl border border-zinc-200 p-5 pb-8 flex flex-col items-center">
         <h2 className="text-2xl font-bold mb-7 text-[#4338ca]">Login</h2>
-
         <form
           action=""
           className="flex flex-col gap-6"
@@ -102,6 +102,10 @@ export default function Login() {
             <span className="text-white my-1">Logar</span>
           </Button>
         </form>
+
+        <Link href={'/cadastro'} className="mt-6">
+          <span className="text-[#4338ca]">Criar conta</span>
+        </Link>
       </div>
     </div>
   );

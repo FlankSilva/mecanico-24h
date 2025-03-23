@@ -1,5 +1,7 @@
+'use client';
+
 import { useCallback, useRef, useState } from 'react';
-import Select, { components } from 'react-select';
+import Select, { components, MultiValue, SingleValue } from 'react-select';
 import { FixedSizeList as List } from 'react-window';
 
 export type Options = {
@@ -11,7 +13,8 @@ type SelectDropdownProps = {
   options: Options[];
   label?: string;
   placeholder?: string;
-  setSelectedOption: (option: Options) => void;
+  isMulti?: boolean;
+  setSelectedOption: (option: Options | Options[]) => void;
 };
 
 const MenuList = (props: any) => {
@@ -37,6 +40,7 @@ export function SelectDropdown({
   label,
   placeholder,
   setSelectedOption,
+  isMulti = false,
 }: SelectDropdownProps) {
   const [filteredOptions, setFilteredOptions] = useState<Options[]>(options);
 
@@ -58,7 +62,7 @@ export function SelectDropdown({
     [options],
   );
 
-  const handleChange = (option: Options | null) => {
+  const handleChange = (option: SingleValue<Options> | MultiValue<Options>) => {
     setSelectedOption(option as Options);
   };
 
@@ -74,6 +78,7 @@ export function SelectDropdown({
         onInputChange={handleInputChange}
         components={{ MenuList }}
         onChange={handleChange}
+        isMulti={isMulti}
       />
     </div>
   );

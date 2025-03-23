@@ -29,7 +29,7 @@ model Mechanic {
   id               String   @id @default(uuid())
   userId           String   @unique
   specialties      String[]
-  cityId           String
+  cityId           String[]
   photoUrl         String?
   commissionaireId String?
 

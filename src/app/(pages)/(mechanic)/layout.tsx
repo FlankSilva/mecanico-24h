@@ -1,5 +1,5 @@
 import { Footer } from '@/components/elements/footer';
-import Header from '@/components/elements/header';
+import { Navbar } from '@/components/elements/navbar';
 
 export default function HomeLayout({
   children,
@@ -8,7 +8,7 @@ export default function HomeLayout({
 }) {
   return (
     <div className="flex flex-col items-center w-full">
-      <Header />
+      <Navbar />
       <main className="w-full max-w-7xl">{children}</main>
       <Footer />
     </div>

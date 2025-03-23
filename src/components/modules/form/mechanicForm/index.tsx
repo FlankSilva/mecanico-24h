@@ -15,22 +15,9 @@ type FormProps = {
   statesOptions: SelectProps[];
 };
 
-type FormDataProps = {
-  name: string;
-  phone: string;
-  address: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
-
-type ResponseCreateUser = {
-  token: string;
-};
-
 export function MechanicForm({ statesOptions }: FormProps) {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-  const [selectedCity, setSelectedCity] = useState<Options>({} as Options);
+  const [selectedCity, setSelectedCity] = useState<Options | Options[]>([]);
   const [otherValue, setOtherValue] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -46,10 +33,17 @@ export function MechanicForm({ statesOptions }: FormProps) {
     const formData = new FormData();
 
     formData.append('specialties', selectedOptions.join(','));
-    formData.append('cityId', selectedCity?.value || '');
+
+    const selectedCityValue = Array.isArray(selectedCity)
+      ? selectedCity.map(city => city.value).join(',')
+      : selectedCity?.value || '';
+
+    formData.append('cityId', selectedCityValue);
+
     if (selectedFile) {
       formData.append('photoUrl', selectedFile);
     }
+
     const token = storageAuthTokenGet();
 
     try {
@@ -61,14 +55,8 @@ export function MechanicForm({ statesOptions }: FormProps) {
         },
       });
 
-      // if (!response.ok) {
-      //   throw new Error('Erro ao cadastrar mecânico');
-      // }
-
       const result = await response.json();
       console.log('Cadastro realizado com sucesso:', result);
-
-      // router.push('/dashboard');
     } catch (error) {
       console.error('Erro ao enviar os dados:', error);
     }
@@ -94,9 +82,10 @@ export function MechanicForm({ statesOptions }: FormProps) {
       <div className="w-full mt-4">
         <SelectDropdown
           label="Cidade"
-          placeholder="Selecione uma cidade"
+          placeholder="Selecione a cidade"
           options={statesOptions}
           setSelectedOption={setSelectedCity}
+          isMulti
         />
       </div>
 
@@ -105,7 +94,7 @@ export function MechanicForm({ statesOptions }: FormProps) {
           label="Id do commissionario"
           placeholder="Insira o id do commissionario"
           value={commissionarioId}
-          onChange={() => setCommissionarioId}
+          onChange={e => setCommissionarioId(e.target.value)}
         />
       </div>
 

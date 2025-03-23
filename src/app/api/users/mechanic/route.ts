@@ -38,10 +38,14 @@ export async function POST(req: Request) {
       ? specialtiesRaw.split(',').map(service => service.trim())
       : [];
 
-    const cityId = formData.get('cityId') as string;
+    const cityIdsRaw = formData.get('cityId') as string;
+    const cityIds = cityIdsRaw
+      ? cityIdsRaw.split(',').map(id => id.trim())
+      : [];
+
     const file = formData.get('photoUrl') as File | null;
 
-    if (!specialties || !cityId) {
+    if (!specialties || !cityIds || cityIds.length === 0) {
       return NextResponse.json(
         { error: 'Campos obrigatórios ausentes' },
         { status: 400 },
@@ -61,7 +65,7 @@ export async function POST(req: Request) {
         data: {
           userId,
           specialties,
-          cityId,
+          cityId: cityIds,
           photoUrl,
         },
       }),
