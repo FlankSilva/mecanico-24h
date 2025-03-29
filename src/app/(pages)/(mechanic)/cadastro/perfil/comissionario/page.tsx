@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import Container from '@/components/elements/container';
-import { Button } from '@/components/elements/form/button';
-import CopyTextField from '@/components/elements/form/copyTextFiels';
-import { storageAuthTokenGet } from '@/storage/authToken';
-import { useState } from 'react';
+import Container from "@/components/elements/container";
+import { Button } from "@/components/elements/form/button";
+import CopyTextField from "@/components/elements/form/copyTextFiels";
+import { storageAuthTokenGet } from "@/storage/authToken";
+import { useEffect, useState } from "react";
 
 type StatesResponse = {
   estados: {
@@ -15,33 +15,33 @@ type StatesResponse = {
 };
 
 export default function Commissionary() {
-  const [uniqueCode, setUniqueCode] = useState('');
-  const [error, setError] = useState('');
+  const [uniqueCode, setUniqueCode] = useState("");
+  const [error, setError] = useState("");
+  const [token, setToken] = useState<string | null>("");
 
-  console.log(uniqueCode);
-
-  const token = storageAuthTokenGet();
-
-  if (!token) {
-    setError('Token não encontrado. Faça login novamente.');
-    return;
-  }
+  useEffect(() => {
+    const storedToken = storageAuthTokenGet();
+    if (!storedToken) {
+      setError("Token não encontrado. Faça login novamente.");
+    } else {
+      setToken(storedToken);
+    }
+  }, []);
 
   async function handleCreateKey() {
-    setError('');
-    setUniqueCode('');
+    setError("");
+    setUniqueCode("");
 
-    const token = storageAuthTokenGet();
     if (!token) {
-      setError('Token não encontrado. Faça login novamente.');
+      setError("Token não encontrado. Faça login novamente.");
       return;
     }
 
     try {
-      const response = await fetch('/api/users/commissionaire', {
-        method: 'POST',
+      const response = await fetch("/api/users/commissionaire", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
@@ -49,13 +49,17 @@ export default function Commissionary() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Erro ao gerar a chave');
+        throw new Error(data.error || "Erro ao gerar a chave");
       }
 
       setUniqueCode(data.uniqueCode);
     } catch (err: any) {
-      setError(err.message || 'Erro desconhecido');
+      setError(err.message || "Erro desconhecido");
     }
+  }
+
+  if (error) {
+    return <div>{error}</div>;
   }
 
   return (

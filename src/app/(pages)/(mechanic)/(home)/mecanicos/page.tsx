@@ -2,10 +2,20 @@ import { CardMechanic } from '@/components/elements/cards/cardMechanic';
 import Container from '@/components/elements/container';
 
 export default async function Mecanicos() {
-  const response = await fetch('http://localhost:3000/api/users/mechanic');
-  const states: any = await response.json();
+  // A chamada fetch para a API pode ser feita aqui diretamente, porque este é um Server Component.
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
 
-  console.log(states);
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/users/mechanic`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch data');
+    }
+    const states: any = await response.json();
+    console.log(states);
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
 
   return (
     <div className="min-h-[calc(100vh-70px)]">

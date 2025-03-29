@@ -1,9 +1,19 @@
-import { AUTH_TOKEN_STORAGE } from './storageConfig';
+import { AUTH_TOKEN_STORAGE } from "./storageConfig";
 
 export function storageAuthTokenSave(token: string) {
-  sessionStorage.setItem(AUTH_TOKEN_STORAGE, token);
+  // Verifica se está no cliente (navegador)
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem(AUTH_TOKEN_STORAGE, token);
+  }
 }
 
 export function storageAuthTokenGet() {
-  return sessionStorage.getItem(AUTH_TOKEN_STORAGE);
+  try {
+    // Verifica se está no cliente (navegador)
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem(AUTH_TOKEN_STORAGE);
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }

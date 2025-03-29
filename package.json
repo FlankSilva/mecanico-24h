@@ -6,7 +6,6 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint src --ext .tsx --fix",
     "seed": "prisma db seed"
   },
   "dependencies": {
@@ -31,7 +30,6 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "@rocketseat/eslint-config": "^2.2.2",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.9",
@@ -41,8 +39,6 @@
     "@types/react-dom": "^19",
     "@types/react-window": "^1.8.8",
     "@types/uuid": "^10.0.0",
-    "eslint": "^9.22.0",
-    "eslint-plugin-simple-import-sort": "^12.1.1",
     "prisma": "^6.4.1",
     "tailwindcss": "^4",
     "ts-node": "^10.9.1",

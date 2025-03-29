@@ -4,10 +4,12 @@ import { Clock, MapPin, MessageSquare, Phone } from 'lucide-react';
 import Link from 'next/link';
 
 export function CardMechanic() {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
+
   return (
     <div className="rounded-2xl overflow-hidden">
       <Image
-        src="http://localhost:3000/uploads/Captura%20de%20tela%202024-12-28%20164207.png"
+        src={`${apiBaseUrl}/uploads/Captura%20de%20tela%202024-12-28%20164207.png`}
         alt=""
         width={500}
         height={300}
