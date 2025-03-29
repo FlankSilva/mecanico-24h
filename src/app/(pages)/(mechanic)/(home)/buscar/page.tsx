@@ -21,9 +21,12 @@ export default function Home() {
 
   useEffect(() => {
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
+
+    console.log(apiBaseUrl);
+    
     const fetchData = async () => {
       try {
-        const response = await fetch(`${apiBaseUrl}/estados-cidades.json`);
+        const response = await fetch(`${apiBaseUrl}estados-cidades.json`);
         if (!response.ok) {
           throw new Error("Falha ao carregar dados");
         }
@@ -38,6 +41,8 @@ export default function Home() {
 
         setCitiesStates(citiesStates);
       } catch (err) {
+        console.log(err);
+        
         setError("Erro ao carregar cidades");
       } finally {
         setLoading(false);
