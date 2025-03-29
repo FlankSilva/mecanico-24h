@@ -26,7 +26,7 @@ export default function Home() {
     
     const fetchData = async () => {
       try {
-        const response = await fetch(`${apiBaseUrl}estados-cidades.json`);
+        const response = await fetch(`${apiBaseUrl}/estados-cidades.json`);
         if (!response.ok) {
           throw new Error("Falha ao carregar dados");
         }
