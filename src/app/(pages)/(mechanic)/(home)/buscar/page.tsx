@@ -3,20 +3,31 @@ import { DropDownGetCity } from "@/components/modules/form/mechanicForm/dropDown
 import { SelectProps } from "@/types/selectProps";
 import Link from "next/link";
 
-type StatesResponse = {
-  estados: {
-    sigla: string;
-    nome: string;
-    cidades: string[];
-  }[];
-};
+export default async function Home() {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
+  const errorMessage = "Erro ao carregar cidades";
+  let citiesStates: SelectProps[] = [];
+  let error: string | null = null;
 
-type HomeProps = {
-  citiesStates: SelectProps[];
-  error: string | null;
-};
+  try {
+    const response = await fetch(`${apiBaseUrl}/estados-cidades.json`);
+    if (!response.ok) {
+      throw new Error(errorMessage);
+    }
 
-export default function Home({ citiesStates, error }: HomeProps) {
+    const states = await response.json();
+
+    citiesStates = states.estados.flatMap((state: any) =>
+      state.cidades.map((city: any) => ({
+        label: `${city} - ${state.sigla}`,
+        value: `${city} - ${state.sigla}`,
+      }))
+    );
+  } catch (err) {
+    console.error(err);
+    error = errorMessage;
+  }
+
   if (error) {
     return <div>{error}</div>;
   }
@@ -43,40 +54,4 @@ export default function Home({ citiesStates, error }: HomeProps) {
       </Container>
     </div>
   );
-}
-
-export async function getServerSideProps() {
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
-  const errorMessage = "Erro ao carregar cidades";
-
-  try {
-    const response = await fetch(`${apiBaseUrl}/estados-cidades.json`);
-    if (!response.ok) {
-      throw new Error(errorMessage);
-    }
-
-    const states: StatesResponse = await response.json();
-
-    const citiesStates = states.estados.flatMap((state) =>
-      state.cidades.map((city) => ({
-        label: `${city} - ${state.sigla}`,
-        value: `${city} - ${state.sigla}`,
-      }))
-    );
-
-    return {
-      props: {
-        citiesStates,
-        error: null,
-      },
-    };
-  } catch (error) {
-    console.error(error);
-    return {
-      props: {
-        citiesStates: [],
-        error: errorMessage,
-      },
-    };
-  }
 }
