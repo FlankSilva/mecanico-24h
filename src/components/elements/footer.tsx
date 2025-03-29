@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export function Footer() {
   return (
-    <footer>
+    <footer className="border w-full">
       <div>
         <div>
           <h3>Mecanico 24 Horas</h3>

@@ -1,19 +1,21 @@
 import Container from '@/components/elements/container';
+import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div>
+    <div className="min-h-[calc(100vh-70px)]">
       <Container>
-        <h1 className="text-center text-2xl font-bold text-[#4338ca]">
-          Mecânicos 24 Horas
+        <h1 className="text-3xl font-bold text-white mt-10 text-center">
+          Encontre Mecânicos 24h Perto de Você
         </h1>
 
-        <h2 className="text-center text-[0.8rem] mt-4">
-          Encontre serviços de mecânicos 24 horas em todas as cidades do Brasil.
-          Assistência automotiva de emergência quando você mais precisa.
-        </h2>
-
-        {/* <SearchLocation /> */}
+        <div className="flex justify-center mt-28">
+          <Link href="/buscar">
+            <button className=" px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
+              Buscar Mecânicos por cidade
+            </button>
+          </Link>
+        </div>
       </Container>
     </div>
   );

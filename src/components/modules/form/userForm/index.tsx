@@ -1,6 +1,6 @@
 'use client';
 
-import { Controller, useForm } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 
 import { Button } from '@/components/elements/form/button';
 import { Input } from '@/components/elements/form/input';
@@ -8,6 +8,7 @@ import { TextErrorGeneral } from '@/components/elements/form/textErrorGeneral';
 import { useResponseCreateUser } from '@/context/responseCreateUser';
 import { storageAuthTokenSave } from '@/storage/authToken';
 import { useRouter } from 'next/navigation';
+import { useUserForm } from './shema';
 
 type FormDataProps = {
   name: string;
@@ -72,16 +73,7 @@ export function UserForm() {
     watch,
     control,
     formState: { errors },
-  } = useForm<FormDataProps>({
-    values: {
-      name: 'Fulano da Silva',
-      phone: '(00) 00000-0000',
-      address: 'Rua, n°, bairro',
-      email: 'sVtQK@example.com',
-      password: '123456',
-      confirmPassword: '123456',
-    },
-  });
+  } = useUserForm();
 
   return (
     <form
@@ -92,12 +84,13 @@ export function UserForm() {
         <Controller
           control={control}
           name="name"
-          render={({ field: { onChange, value } }) => (
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
             <Input
               label="Nome"
               placeholder="Digite seu nome"
               value={value}
               onChange={onChange}
+              message={error?.message}
             />
           )}
         />
@@ -105,12 +98,13 @@ export function UserForm() {
         <Controller
           control={control}
           name="phone"
-          render={({ field: { onChange, value } }) => (
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
             <Input
               label="Celular / Whatsapp"
               placeholder="(00) 00000-0000"
               value={value}
               onChange={onChange}
+              message={error?.message}
             />
           )}
         />
@@ -118,12 +112,13 @@ export function UserForm() {
         <Controller
           control={control}
           name="address"
-          render={({ field: { onChange, value } }) => (
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
             <Input
               label="Endereço"
               placeholder="Rua, nº, bairro"
               value={value}
               onChange={onChange}
+              message={error?.message}
             />
           )}
         />
@@ -131,12 +126,13 @@ export function UserForm() {
         <Controller
           control={control}
           name="email"
-          render={({ field: { onChange, value } }) => (
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
             <Input
               label="Email"
               placeholder="exemplo@exemplo.com"
               value={value}
               onChange={onChange}
+              message={error?.message}
             />
           )}
         />
@@ -144,12 +140,13 @@ export function UserForm() {
         <Controller
           control={control}
           name="password"
-          render={({ field: { onChange, value } }) => (
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
             <Input
               label="Senha"
               placeholder="Digite sua senha"
               value={value}
               onChange={onChange}
+              message={error?.message}
             />
           )}
         />
@@ -157,12 +154,13 @@ export function UserForm() {
         <Controller
           control={control}
           name="confirmPassword"
-          render={({ field: { onChange, value } }) => (
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
             <Input
               label="Confirmar senha"
               placeholder="Digite sua senha"
               value={value}
               onChange={onChange}
+              message={error?.message}
             />
           )}
         />

@@ -7,6 +7,31 @@ import path from 'path';
 const prisma = new PrismaClient();
 const SECRET_KEY = process.env.JWT_SECRET || 'secret';
 
+export async function GET(req: Request) {
+  try {
+    const mechanics = await prisma.mechanic.findMany({
+      include: {
+        user: {
+          select: {
+            name: true,
+            phone: true,
+            address: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(mechanics, { status: 200 });
+  } catch (error) {
+    console.error('Erro ao buscar mecânicos:', error);
+    return NextResponse.json(
+      { error: 'Erro interno do servidor' },
+      { status: 500 },
+    );
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const token = req.headers.get('Authorization')?.split(' ')[1];
