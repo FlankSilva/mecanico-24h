@@ -2,7 +2,6 @@ import { CardMechanic } from '@/components/elements/cards/cardMechanic';
 import Container from '@/components/elements/container';
 
 export default async function Mecanicos() {
-  // A chamada fetch para a API pode ser feita aqui diretamente, porque este é um Server Component.
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
 
   try {

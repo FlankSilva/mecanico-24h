@@ -1,10 +1,7 @@
-"use client";
-
 import Container from "@/components/elements/container";
 import { DropDownGetCity } from "@/components/modules/form/mechanicForm/dropDown";
 import { SelectProps } from "@/types/selectProps";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 type StatesResponse = {
   estados: {
@@ -14,48 +11,12 @@ type StatesResponse = {
   }[];
 };
 
-export default function Home() {
-  const [citiesStates, setCitiesStates] = useState<SelectProps[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+type HomeProps = {
+  citiesStates: SelectProps[];
+  error: string | null;
+};
 
-  useEffect(() => {
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
-
-    console.log(apiBaseUrl);
-    
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${apiBaseUrl}/estados-cidades.json`);
-        if (!response.ok) {
-          throw new Error("Falha ao carregar dados");
-        }
-        const states: StatesResponse = await response.json();
-
-        const citiesStates = states.estados.flatMap((state) =>
-          state.cidades.map((city) => ({
-            label: `${city} - ${state.sigla}`,
-            value: `${city} - ${state.sigla}`,
-          }))
-        );
-
-        setCitiesStates(citiesStates);
-      } catch (err) {
-        console.log(err);
-        
-        setError("Erro ao carregar cidades");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return <div>Carregando...</div>;
-  }
-
+export default function Home({ citiesStates, error }: HomeProps) {
   if (error) {
     return <div>{error}</div>;
   }
@@ -82,4 +43,40 @@ export default function Home() {
       </Container>
     </div>
   );
+}
+
+export async function getServerSideProps() {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
+  const errorMessage = "Erro ao carregar cidades";
+
+  try {
+    const response = await fetch(`${apiBaseUrl}/estados-cidades.json`);
+    if (!response.ok) {
+      throw new Error(errorMessage);
+    }
+
+    const states: StatesResponse = await response.json();
+
+    const citiesStates = states.estados.flatMap((state) =>
+      state.cidades.map((city) => ({
+        label: `${city} - ${state.sigla}`,
+        value: `${city} - ${state.sigla}`,
+      }))
+    );
+
+    return {
+      props: {
+        citiesStates,
+        error: null,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      props: {
+        citiesStates: [],
+        error: errorMessage,
+      },
+    };
+  }
 }
