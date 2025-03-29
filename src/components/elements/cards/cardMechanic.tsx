@@ -5,6 +5,8 @@ import Link from 'next/link';
 
 export function CardMechanic() {
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
+  console.log(`${apiBaseUrl}/uploads/Captura%20de%20tela%202024-12-28%20164207.png`);
+  
 
   return (
     <div className="rounded-2xl overflow-hidden">
