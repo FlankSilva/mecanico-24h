@@ -28,7 +28,7 @@ export function useUserForm() {
     resolver: zodResolver(userFormSchema),
     defaultValues: {
       name: 'john Doe',
-      phone: '19999999999',
+      phone: '(99) 99999-9999',
       address: 'Rua Teste, 123',
       email: 'john.doe@me.com',
       password: '123456',
